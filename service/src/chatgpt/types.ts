@@ -7,7 +7,8 @@ export interface RequestOptions {
   process?: (chat: ChatMessage) => void
   systemMessage?: string
   temperature?: number
-  top_p?: number
+  top_p?: number,
+  username?: string
 }
 
 export interface SetProxyOptions {

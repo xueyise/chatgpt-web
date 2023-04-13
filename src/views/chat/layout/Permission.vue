@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
-import { fetchVerify } from '@/api'
+import { fetchVerify, fetchReg, fetchLogin } from '@/api'
 import { useAuthStore } from '@/store'
 import Icon403 from '@/icons/403.vue'
 
@@ -16,8 +16,10 @@ const authStore = useAuthStore()
 const ms = useMessage()
 
 const loading = ref(false)
-const token = ref('')
 
+const username = ref('')
+const password = ref('')
+const token = ref(username.value + "*" + password.value);
 const disabled = computed(() => !token.value.trim() || loading.value)
 
 async function handleVerify() {
@@ -43,12 +45,61 @@ async function handleVerify() {
   }
 }
 
-function handlePress(event: KeyboardEvent) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault()
-    handleVerify()
+async function handlereg() {
+  const us = username.value.trim()
+  const pa = password.value.trim()
+
+  if (!us || !pa)
+    return
+
+  try {
+    loading.value = true
+    await fetchReg(us, pa)
+    authStore.setToken((us + "&" + pa))
+    ms.success('success')
+    window.location.reload()
+  }
+  catch (error: any) {
+    ms.error(error.message ?? 'error')
+    authStore.removeToken()
+    token.value = ''
+  }
+  finally {
+    loading.value = false
   }
 }
+
+
+
+async function handlelogin() {
+  const us = username.value.trim()
+  const pa = password.value.trim()
+
+  if (!us || !pa)
+    return
+
+  try {
+    loading.value = true
+    await fetchLogin(us, pa)
+    authStore.setToken((us + "&" + pa))
+    ms.success('success')
+    window.location.reload()
+  }
+  catch (error: any) {
+    ms.error(error.message ?? 'error')
+    authStore.removeToken()
+    token.value = ''
+  }
+  finally {
+    loading.value = false
+  }
+}
+// function handlePress(event: KeyboardEvent) {
+//   if (event.key === 'Enter' && !event.shiftKey) {
+//     event.preventDefault()
+//     handleVerify()
+//   }
+// }
 </script>
 
 <template>
@@ -64,15 +115,16 @@ function handlePress(event: KeyboardEvent) {
           </p>
           <Icon403 class="w-[200px] m-auto" />
         </header>
-        <NInput v-model:value="token" type="password" placeholder="" @keypress="handlePress" />
-        <NButton
-          block
-          type="primary"
-          :disabled="disabled"
-          :loading="loading"
-          @click="handleVerify"
-        >
-          {{ $t('common.verify') }}
+        用户
+        <NInput v-model:value="username" type="text" placeholder="" />
+        密码
+        <NInput v-model:value="password" type="password" placeholder="" />
+        <!-- <NInput v-model:value="token" type="password" placeholder="" @keypress="handlePress" /> -->
+        <NButton block type="primary" :disabled="disabled" :loading="loading" @click="handlelogin">
+          登录
+        </NButton>
+        <NButton block type="primary" :disabled="disabled" :loading="loading" @click="handlereg">
+          注册
         </NButton>
       </div>
     </div>

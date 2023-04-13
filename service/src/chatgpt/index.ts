@@ -82,8 +82,28 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
   }
 })()
 
+ 
+import fs from 'fs' 
+ 
+function writefiles(message, usnemane, lastContext, id, contern) {  
+  const timestamp = Date.now();
+  const messageString = `时间：${timestamp} ,问： ${message} ,回答： ${contern}  ,id: ${id} ,pid:${lastContext?.parentMessageId}\n`;
+  fs.appendFile(usnemane + '.txt', messageString, (err) => {
+    if (err) throw err;
+    console.log('The file has been saved!');
+  });
+}
+// 写文件
+
+
+// // 读文件
+// fs.readFile('message.txt', 'utf8', (err, data) => {
+//   if (err) throw err;
+//   console.log(data);
+// });
+
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage, temperature, top_p } = options
+  const { message, lastContext, process, systemMessage, temperature, top_p, username } = options
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -106,6 +126,9 @@ async function chatReplyProcess(options: RequestOptions) {
         process?.(partialResponse)
       },
     })
+
+
+    writefiles(message, username, lastContext, response.id, response.text)
 
     return sendResponse({ type: 'Success', data: response })
   }
