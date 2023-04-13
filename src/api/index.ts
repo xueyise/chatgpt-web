@@ -66,10 +66,10 @@ export function fetchVerify<T>(token: string) {
 }
 
 
-export function fetchReg<T>(username: string,password:string) {
+export function fetchReg<T>(username: string,password:string,name:string,tel:string) {
   return post<T>({
     url: '/register',
-    data: { username, password},
+    data: { username, password,name,tel},
   })
 }
 

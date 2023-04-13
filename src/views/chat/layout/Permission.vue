@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
-import {  fetchReg, fetchLogin } from '@/api'
+import { fetchReg, fetchLogin } from '@/api'
 import { useAuthStore } from '@/store'
 import Icon403 from '@/icons/403.vue'
 
@@ -17,11 +17,15 @@ const ms = useMessage()
 
 const loading = ref(false)
 
+const breg = ref(false)
 const username = ref('')
 const password = ref('')
+const name = ref('')
+const tel = ref('')
 const token = ref(username.value + "*" + password.value);
 const disabled = computed(() => !token.value.trim() || loading.value)
 
+ 
 // async function handleVerify() {
 //   const secretKey = token.value.trim()
 
@@ -48,14 +52,16 @@ const disabled = computed(() => !token.value.trim() || loading.value)
 async function handlereg() {
   const us = username.value.trim()
   const pa = password.value.trim()
+  const na = name.value.trim()
+  const tl = tel.value.trim()
 
   if (!us || !pa)
     return
 
   try {
     loading.value = true
-    await fetchReg(us, pa)
-    authStore.setToken((us + "&" + pa))
+    await fetchReg(us, pa, na, tl)
+    //authStore.setToken((us + "&" + pa))
     ms.success('success')
     window.location.reload()
   }
@@ -115,15 +121,28 @@ async function handlelogin() {
           </p>
           <Icon403 class="w-[200px] m-auto" />
         </header>
+
+        <div v-show="breg">
+          姓名
+          <NInput v-model:value="name" type="text" placeholder="" />
+          手机号
+          <NInput v-model:value="tel" type="text" placeholder="" />
+        </div>
         用户
         <NInput v-model:value="username" type="text" placeholder="" />
         密码
         <NInput v-model:value="password" type="password" placeholder="" />
         <!-- <NInput v-model:value="token" type="password" placeholder="" @keypress="handlePress" /> -->
-        <NButton block type="primary" :disabled="disabled" :loading="loading" @click="handlelogin">
+        <NButton v-show="!breg" block type="primary" :disabled="disabled" :loading="loading" @click="handlelogin">
           登录
         </NButton>
-        <NButton block type="primary" :disabled="disabled" :loading="loading" @click="handlereg">
+        <NButton block v-show="!breg" type="primary" :disabled="disabled" :loading="loading" @click="breg = !breg">
+          注册
+        </NButton>
+        <NButton block v-show="breg" type="primary" :disabled="disabled" :loading="loading" @click="breg = !breg">
+          登录
+        </NButton>
+        <NButton block v-show="breg" type="primary" :disabled="disabled" :loading="loading" @click="handlereg">
           注册
         </NButton>
       </div>

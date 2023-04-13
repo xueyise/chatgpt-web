@@ -106,7 +106,7 @@ router.post('/register', (req, res) => {
 
 
   // 从请求体中获取用户名和密码
-  const { username, password } = req.body;
+  const { username, password ,name,tel} = req.body;
 
   // 读取已有用户信息
   const data = JSON.parse(readFileSync('data/users.json', 'utf-8'));
@@ -122,7 +122,9 @@ router.post('/register', (req, res) => {
     const newUser = {
       id: data.users.length + 1,
       username,
-      password
+      password,
+      name,
+      tel
     };
 
     // 添加新用户
