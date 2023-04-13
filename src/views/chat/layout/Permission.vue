@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
-import { fetchVerify, fetchReg, fetchLogin } from '@/api'
+import {  fetchReg, fetchLogin } from '@/api'
 import { useAuthStore } from '@/store'
 import Icon403 from '@/icons/403.vue'
 
@@ -22,28 +22,28 @@ const password = ref('')
 const token = ref(username.value + "*" + password.value);
 const disabled = computed(() => !token.value.trim() || loading.value)
 
-async function handleVerify() {
-  const secretKey = token.value.trim()
+// async function handleVerify() {
+//   const secretKey = token.value.trim()
 
-  if (!secretKey)
-    return
+//   if (!secretKey)
+//     return
 
-  try {
-    loading.value = true
-    await fetchVerify(secretKey)
-    authStore.setToken(secretKey)
-    ms.success('success')
-    window.location.reload()
-  }
-  catch (error: any) {
-    ms.error(error.message ?? 'error')
-    authStore.removeToken()
-    token.value = ''
-  }
-  finally {
-    loading.value = false
-  }
-}
+//   try {
+//     loading.value = true
+//     await fetchVerify(secretKey)
+//     authStore.setToken(secretKey)
+//     ms.success('success')
+//     window.location.reload()
+//   }
+//   catch (error: any) {
+//     ms.error(error.message ?? 'error')
+//     authStore.removeToken()
+//     token.value = ''
+//   }
+//   finally {
+//     loading.value = false
+//   }
+// }
 
 async function handlereg() {
   const us = username.value.trim()
