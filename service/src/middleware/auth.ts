@@ -1,16 +1,9 @@
-import { readFileSync } from 'fs';
-import { isNotEmptyString } from '../utils/is'
-
-const auth = async (req, res, next) => { 
-
+import { verifyToken } from '../utils/token'
+const auth = async (req, res, next) => {
   try {
-    const Authorization = req.header('Authorization')
-    // 读取已有用户信息
-    const data = JSON.parse(readFileSync('data/users.json', 'utf-8'));
-    let users = Authorization.split("&");
-    // 查找匹配的用户
-    const user = data.users.find(user => user.username === users[0].split(' ')[1] && user.password === users[1]);
-    if (!user) {
+    let token = req.headers.authorization; // 获取请求头中的authorization字段，即携带的token
+    let result = verifyToken(token, req); // 调用验证token的函数，传入token    
+    if (!result) {
       throw new Error('Error: 无访问权限 | No access rights')
       next()
     } else {

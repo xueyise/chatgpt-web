@@ -16,7 +16,8 @@ export interface HttpOption {
 export interface Response<T = any> {
   data: T
   message: string | null
-  status: string
+  status: string,
+  token:  | null
 }
 
 function http<T = any>(

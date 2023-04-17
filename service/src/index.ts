@@ -7,7 +7,8 @@ import { limiter } from './middleware/limiter'
 import { isNotEmptyString } from './utils/is'
 import fs from 'fs'
 import { readFileSync } from 'fs';
-
+import { generateToken, getUserInfo } from './utils/token' 
+ 
 const app = express()
 const router = express.Router()
 
@@ -26,8 +27,8 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
 
   try {
     const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
-    const username = req.header('Authorization').replace('Bearer ', '').trim();
-
+    const user: any = getUserInfo(req.header('Authorization').replace('Bearer ', '').trim());
+    const username = user?.username
     let firstChunk = true
     await chatReplyProcess({
       message: prompt,
@@ -104,9 +105,8 @@ router.post('/verify', async (req, res) => {
 
 router.post('/register', (req, res) => {
 
-
   // 从请求体中获取用户名和密码
-  const { username, password ,name,tel} = req.body;
+  const { username, password, name, tel } = req.body;
 
   // 读取已有用户信息
   const data = JSON.parse(readFileSync('data/users.json', 'utf-8'));
@@ -151,10 +151,11 @@ router.post('/login', (req, res) => {
   if (user) {
     // 返回用户信息
     //res.send(user);
-    res.send({ status: 'Success', message: 'login successfully', data: null })
+    let token = generateToken(user, req); // 调用生成token的函数，传入用户信息
+    res.send({ status: 'Success', message: 'login successfully', data: null, token })
   } else {
     res.send({ status: 'Fail', message: 'Invalid username or password', data: null })
-   // res.status(401).send('Invalid username or password');
+    // res.status(401).send('Invalid username or password');
   }
 });
 

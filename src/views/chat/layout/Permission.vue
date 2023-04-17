@@ -2,15 +2,16 @@
 import { computed, ref } from 'vue'
 import { NButton, NInput, NModal, useMessage } from 'naive-ui'
 import { fetchReg, fetchLogin } from '@/api'
-import { useAuthStore } from '@/store'
+import { useAuthStore,useUserStore } from '@/store'
 import Icon403 from '@/icons/403.vue'
-
+ 
 interface Props {
   visible: boolean
 }
 
 defineProps<Props>()
-
+let userStore = useUserStore()
+ 
 const authStore = useAuthStore()
 
 const ms = useMessage()
@@ -25,29 +26,6 @@ const tel = ref('')
 const token = ref(username.value + "*" + password.value);
 const disabled = computed(() => !token.value.trim() || loading.value)
 
- 
-// async function handleVerify() {
-//   const secretKey = token.value.trim()
-
-//   if (!secretKey)
-//     return
-
-//   try {
-//     loading.value = true
-//     await fetchVerify(secretKey)
-//     authStore.setToken(secretKey)
-//     ms.success('success')
-//     window.location.reload()
-//   }
-//   catch (error: any) {
-//     ms.error(error.message ?? 'error')
-//     authStore.removeToken()
-//     token.value = ''
-//   }
-//   finally {
-//     loading.value = false
-//   }
-// }
 
 async function handlereg() {
   const us = username.value.trim()
@@ -61,7 +39,6 @@ async function handlereg() {
   try {
     loading.value = true
     await fetchReg(us, pa, na, tl)
-    //authStore.setToken((us + "&" + pa))
     ms.success('success')
     window.location.reload()
   }
@@ -74,7 +51,6 @@ async function handlereg() {
     loading.value = false
   }
 }
-
 
 
 async function handlelogin() {
@@ -86,9 +62,13 @@ async function handlelogin() {
 
   try {
     loading.value = true
-    await fetchLogin(us, pa)
-    authStore.setToken((us + "&" + pa))
+    const { token } = await fetchLogin(us, pa)
+    console.log(token)
+    if (token)
+      authStore.setToken(token)
     ms.success('success')
+    userStore.userInfo.name = us
+    userStore.updateUserInfo(userStore.userInfo)
     window.location.reload()
   }
   catch (error: any) {
@@ -100,12 +80,7 @@ async function handlelogin() {
     loading.value = false
   }
 }
-// function handlePress(event: KeyboardEvent) {
-//   if (event.key === 'Enter' && !event.shiftKey) {
-//     event.preventDefault()
-//     handleVerify()
-//   }
-// }
+
 </script>
 
 <template>
@@ -114,10 +89,11 @@ async function handlelogin() {
       <div class="space-y-4">
         <header class="space-y-2">
           <h2 class="text-2xl font-bold text-center text-slate-800 dark:text-neutral-200">
-            403
+            用户登录
           </h2>
           <p class="text-base text-center text-slate-500 dark:text-slate-500">
-            {{ $t('common.unauthorizedTips') }}
+            <!-- {{ $t('common.unauthorizedTips') }} -->
+            用户信息请联系管理员
           </p>
           <Icon403 class="w-[200px] m-auto" />
         </header>
@@ -128,7 +104,7 @@ async function handlelogin() {
           手机号
           <NInput v-model:value="tel" type="text" placeholder="" />
         </div>
-        用户
+        用户名
         <NInput v-model:value="username" type="text" placeholder="" />
         密码
         <NInput v-model:value="password" type="password" placeholder="" />
@@ -136,11 +112,11 @@ async function handlelogin() {
         <NButton v-show="!breg" block type="primary" :disabled="disabled" :loading="loading" @click="handlelogin">
           登录
         </NButton>
-        <NButton block v-show="!breg" type="primary" :disabled="disabled" :loading="loading" @click="breg = !breg">
-          注册
-        </NButton>
+        <!-- <NButton block v-show="!breg" type="primary" :disabled="disabled" :loading="loading" @click="breg = !breg">
+              注册
+            </NButton> -->
         <NButton block v-show="breg" type="primary" :disabled="disabled" :loading="loading" @click="breg = !breg">
-          登录
+          返回登录
         </NButton>
         <NButton block v-show="breg" type="primary" :disabled="disabled" :loading="loading" @click="handlereg">
           注册

@@ -93,14 +93,8 @@ function writefiles(message, usnemane, lastContext, id, contern) {
     console.log('The file has been saved!');
   });
 }
-// 写文件
-
-
-// // 读文件
-// fs.readFile('message.txt', 'utf8', (err, data) => {
-//   if (err) throw err;
-//   console.log(data);
-// });
+  
+ 
 
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage, temperature, top_p, username } = options
@@ -119,7 +113,7 @@ async function chatReplyProcess(options: RequestOptions) {
       else
         options = { ...lastContext }
     }
-
+    
     const response = await api.sendMessage(message, {
       ...options,
       onProgress: (partialResponse) => {
